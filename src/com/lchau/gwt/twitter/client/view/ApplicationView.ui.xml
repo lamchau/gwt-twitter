@@ -1,0 +1,66 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+  xmlns:g="urn:import:com.google.gwt.user.client.ui">
+  <ui:style>
+    .outer {
+      width: 600px;
+      margin: auto;
+      padding: 10px;
+    }
+    
+    .left {
+      float: left;
+    }
+    
+    .left .feed {
+      border: 1px solid silver;
+    }
+    
+    .right {
+      float: right;
+      text-align: left;
+      width: 350px;
+    }
+    
+    .right .buttonContainer {
+      width: 100%;
+      text-align: right;
+    }
+    
+    .right .buttonContainer>button {
+      text-align: right;
+      margin-top: 3px;
+      margin-left: 5px;
+    }
+    
+    .error {
+      border: 1px solid #FFADAF;
+      background-color: #FFE0E1;
+      margin: 3px;
+      padding: 5px;
+    }
+  </ui:style>
+  <g:HTMLPanel>
+    <div class="{style.outer}">
+      <div class="{style.left}">
+        <div>20 Most Recent Tweets</div>
+        <g:ScrollPanel height="400px" width="225px"
+          addStyleNames="{style.feed}">
+          <g:FlowPanel ui:field="twitterFeed" />
+        </g:ScrollPanel>
+        <div style="font-size: 8px">* From Oblique Strategies by Brian Eno</div>
+      </div>
+      <div class="{style.right}">
+        <span>Message (<g:InlineLabel ui:field="characterCount">0</g:InlineLabel>/140)</span>:
+        <g:TextArea ui:field="message" visibleLines="5"
+          width="100%" />
+        <!-- TODO: create tooltip to point to each widget so the user can 
+          correct errors -->
+        <g:Label ui:field="errorMessage" addStyleNames="{style.error}" />
+        <div class="{style.buttonContainer}">
+          <g:Button ui:field="sendTweet">Tweet</g:Button>
+        </div>
+      </div>
+    </div>
+  </g:HTMLPanel>
+</ui:UiBinder> 
