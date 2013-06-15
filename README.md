@@ -1,4 +1,4 @@
-[Google Web Toolkit]  [Twitter] Demo
+[Twitter] Demo using [Google Web Toolkit]
 =========
 
 A simple [Twitter]-like application using:
