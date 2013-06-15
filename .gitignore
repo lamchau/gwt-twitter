@@ -1,0 +1,7 @@
+gwt-unitCache/
+www-test/
+war/application/
+war/com.lchau.gwt.twitter.Application.JUnit/
+war/WEB-INF/classes
+war/WEB-INF/deploy
+war/WEB-INF/lib
