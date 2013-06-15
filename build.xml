@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="Application" default="build" basedir=".">
-  <!-- Arguments to gwtc and devmode targets -->
-  <property name="gwt.args" value="-localWorkers 6" />
+  <property name="gwt.args" value="" />
 
   <!-- Configure path to GWT SDK -->
   <property name="gwt.sdk" location="C:/eclipse/plugins/com.google.gwt.eclipse.sdkbundle_2.5.1/gwt-2.5.1" />
@@ -47,7 +46,7 @@
       <arg line="-war"/>
       <arg value="war"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-      <arg line="${gwt.args}"/>
+      <arg line="${gwt.args}" />
       <arg value="com.lchau.gwt.twitter.Application"/>
     </java>
   </target>
@@ -62,11 +61,11 @@
       </classpath>
       <jvmarg value="-Xmx256M"/>
       <arg value="-startupUrl"/>
-      <arg value="Application.html"/>
+      <arg value="application.html"/>
       <arg line="-war"/>
       <arg value="war"/>
-      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-      <arg line="${gwt.args}"/>
+      <arg line="-logLevel"/>
+      <arg value="ALL" />
       <arg value="com.lchau.gwt.twitter.Application"/>
     </java>
   </target>
@@ -83,7 +82,7 @@ Test targets suppressed because -junit argument was not specified when running w
       <classpath refid="project.class.path"/>
     </javac>
   </target>
-  
+
   <target name="test.dev" depends="javac.tests" description="Run development mode tests">
     <mkdir dir="reports/htmlunit.dev" />
     <junit fork="yes" printsummary="yes" haltonfailure="yes">
