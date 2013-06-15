@@ -5,6 +5,8 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.lchau.gwt.twitter.client.event.ClearTweetEvent;
+import com.lchau.gwt.twitter.client.event.ClearTweetEventHandler;
 import com.lchau.gwt.twitter.client.event.SendTweetEvent;
 import com.lchau.gwt.twitter.client.event.SendTweetEventHandler;
 import com.lchau.gwt.twitter.client.presenter.Presenter;
@@ -29,6 +31,12 @@ public class Controller implements Presenter, ValueChangeHandler<String> {
       @Override
       public void onSendTweet(SendTweetEvent event) {
         History.fireCurrentHistoryState();
+      }
+    });
+    eventBus.addHandler(ClearTweetEvent.TYPE, new ClearTweetEventHandler() {
+      @Override
+      public void onClearTweet(ClearTweetEvent event) {
+        // cleared
       }
     });
   }

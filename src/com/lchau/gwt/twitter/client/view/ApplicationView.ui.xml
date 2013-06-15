@@ -39,24 +39,45 @@
       margin: 3px;
       padding: 5px;
     }
+    
+    .test {
+      margin: 5px 0px;
+      padding: 5px;
+      text-align: right;
+      border: 1px solid #d0d0d0;
+    }
+    
+    .test > button {
+      cursor: pointer;
+      height: 24px;
+      padding: 2px 5px; 
+      margin-right: 5px;
+    }
+    
+    .bold {
+      font-weight: bold;
+    }
   </ui:style>
   <g:HTMLPanel>
     <div class="{style.outer}">
       <div class="{style.left}">
-        <div>20 Most Recent Tweets</div>
+        <div class="{style.bold}">20 Most Recent Tweets</div>
         <g:ScrollPanel height="400px" width="225px"
           addStyleNames="{style.feed}">
           <g:FlowPanel ui:field="twitterFeed" />
         </g:ScrollPanel>
+        <div class="{style.test}">
+          <g:Button ui:field="generateTweetsButton" text="Generate" />
+          <g:Button ui:field="resetButton" text="Reset" />
+        </div>
         <div style="font-size: 8px">* From Oblique Strategies by Brian Eno</div>
       </div>
       <div class="{style.right}">
         <span>Message (<g:InlineLabel ui:field="characterCount">0</g:InlineLabel>/140)</span>:
-        <g:TextArea ui:field="message" visibleLines="5"
-          width="100%" />
+        <g:TextArea ui:field="message" visibleLines="5" width="100%" />
         <!-- TODO: create tooltip to point to each widget so the user can 
           correct errors -->
-        <g:Label ui:field="errorMessage" addStyleNames="{style.error}" />
+        <g:Label ui:field="errorMessage" addStyleNames="{style.error}" visible="false"/>
         <div class="{style.buttonContainer}">
           <g:Button ui:field="sendTweet">Tweet</g:Button>
         </div>

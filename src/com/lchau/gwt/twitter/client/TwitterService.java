@@ -11,10 +11,12 @@ import com.lchau.gwt.twitter.shared.dto.Tweet;
  */
 @RemoteServiceRelativePath("twitter")
 public interface TwitterService extends RemoteService {
+  void clearTweets();
+
+  String createRandomMessage();
+
   // TODO: add parameter for last n tweets
   List<Tweet> getMostRecentTweets();
 
   void sendMessage(Tweet tweet) throws IllegalArgumentException;
-
-  String createRandomMessage();
 }

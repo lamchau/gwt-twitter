@@ -9,10 +9,12 @@ import com.lchau.gwt.twitter.shared.dto.Tweet;
  * The async counterpart of <code>TwitterService</code>.
  */
 public interface TwitterServiceAsync {
-  void sendMessage(Tweet tweet, AsyncCallback<Void> callback)
-      throws IllegalArgumentException;
+  void clearTweets(AsyncCallback<Void> callback);
+
+  void createRandomMessage(AsyncCallback<String> callback);
 
   void getMostRecentTweets(AsyncCallback<List<Tweet>> callback);
 
-  void createRandomMessage(AsyncCallback<String> callback);
+  void sendMessage(Tweet tweet, AsyncCallback<Void> callback)
+      throws IllegalArgumentException;
 }

@@ -19,21 +19,17 @@ import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.lchau.gwt.twitter.client.TwitterServiceAsync;
+import com.lchau.gwt.twitter.client.event.ClearTweetEvent;
 import com.lchau.gwt.twitter.client.event.SendTweetEvent;
 import com.lchau.gwt.twitter.client.ui.TweetWidget;
 import com.lchau.gwt.twitter.shared.TweetVerifier;
 import com.lchau.gwt.twitter.shared.dto.Tweet;
 
 public class TweetPresenter implements Presenter {
-  /**
-   * The message displayed to the user when the server cannot be reached or returns an error.
-   */
-  private static final String SERVER_ERROR = "An error occurred while "
-      + "attempting to contact the server. Please check your network "
-      + "connection and try again.";
-
   public interface Display {
     Widget asWidget();
+
+    HasClickHandlers generateRandomTweets();
 
     HasText getCharacterCount();
 
@@ -41,14 +37,34 @@ public class TweetPresenter implements Presenter {
 
     HasValue<String> getMessage();
 
+    HasClickHandlers getResetButton();
+
     HasClickHandlers getSendTweetButton();
 
     HasWidgets getTwitterFeedContainer();
   }
 
+  private class Callback<T> implements AsyncCallback<T> {
+    @Override
+    public void onFailure(Throwable caught) {
+      showErrorMessage(SERVER_ERROR);
+    }
+
+    @Override
+    public void onSuccess(T result) {
+      clearErrorMessage();
+    }
+  }
+
+  /**
+   * The message displayed to the user when the server cannot be reached or returns an error.
+   */
+  private static final String SERVER_ERROR = "An error occurred while "
+      + "attempting to contact the server. Please check your network "
+      + "connection and try again.";
+
   private final Display display;
   private final HandlerManager eventBus;
-  private List<Tweet> queue;
   private final TwitterServiceAsync rpcService;
 
   public TweetPresenter(TwitterServiceAsync rpcService, HandlerManager eventBus, Display view) {
@@ -59,14 +75,32 @@ public class TweetPresenter implements Presenter {
 
   @Override
   public void init(HasWidgets container) {
+    display.generateRandomTweets().addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        rpcService.createRandomMessage(new Callback<String>() {
+          @Override
+          public void onSuccess(String result) {
+            super.onSuccess(result);
+            doSendTweet(result);
+          };
+        });
+      }
+    });
     display.getSendTweetButton().addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        doSendTweet();
+        doSendTweet(display.getMessage().getValue());
       }
     });
-    toggleTweetButton(false);
+    display.getResetButton().addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        doClearTweets();
+      }
+    });
 
+    toggleTweetButton(false);
     if (display.getMessage() instanceof HasAllKeyHandlers) {
       HasAllKeyHandlers widget = ((HasAllKeyHandlers) display.getMessage());
       widget.addKeyDownHandler(new KeyDownHandler() {
@@ -96,36 +130,45 @@ public class TweetPresenter implements Presenter {
     container.add(display.asWidget());
   }
 
-  private void doSendTweet() {
+  private void clearErrorMessage() {
+    showErrorMessage("");
+  }
+
+  private void doClearTweets() {
+    rpcService.clearTweets(new Callback<Void>() {
+      @Override
+      public void onSuccess(Void result) {
+        super.onSuccess(result);
+        display.getTwitterFeedContainer().clear();
+        eventBus.fireEvent(new ClearTweetEvent());
+      }
+    });
+  }
+
+  private void doSendTweet(String message) {
     final Date date = new Date();
     final String username = "lchau";
-    final String message = display.getMessage().getValue();;
 
     // client-side validation
-    final HasText errorMessage = display.getErrorMessage();
-    errorMessage.setText("");
+    clearErrorMessage();
 
     if (!TweetVerifier.isValidCreationDate(date)) {
-      errorMessage.setText(TweetVerifier.INVALID_CREATION_DATE);
+      showErrorMessage(TweetVerifier.INVALID_CREATION_DATE);
       return;
     } else if (!TweetVerifier.isValidUsername(username)) {
       // should not occur, username is fixed
-      errorMessage.setText(TweetVerifier.INVALID_USERNAME);
+      showErrorMessage(TweetVerifier.INVALID_USERNAME);
       return;
     } else if (!TweetVerifier.isValidMessage(message)) {
-      errorMessage.setText(TweetVerifier.INVALID_MESSAGE);
+      showErrorMessage(TweetVerifier.INVALID_MESSAGE);
       return;
     }
 
     Tweet tweet = new Tweet(date, username, message);
-    rpcService.sendMessage(tweet, new AsyncCallback<Void>() {
-      @Override
-      public void onFailure(Throwable caught) {
-        errorMessage.setText(SERVER_ERROR);
-      }
-
+    rpcService.sendMessage(tweet, new Callback<Void>() {
       @Override
       public void onSuccess(Void result) {
+        super.onSuccess(result);
         doUpdateTwitterFeed();
         eventBus.fireEvent(new SendTweetEvent());
       };
@@ -133,27 +176,19 @@ public class TweetPresenter implements Presenter {
   }
 
   private void doUpdateTwitterFeed() {
-    rpcService.getMostRecentTweets(new AsyncCallback<List<Tweet>>() {
-      @Override
-      public void onFailure(Throwable caught) {
-        if (queue != null) {
-          queue.clear();
-        }
-        display.getTwitterFeedContainer().clear();
-      }
-
+    rpcService.getMostRecentTweets(new Callback<List<Tweet>>() {
       @Override
       public void onSuccess(List<Tweet> result) {
-        queue = result;
-        // TODO: find elegant way to update the DOM of stale data, Tweet DTOs are pretty lightweight
-        // so redrawing is not a huge burden client-side.
-        // TODO: use Map<Tweet, TweetWidget> to cache DOM objects for faster rendering
-        display.getTwitterFeedContainer().clear();
-        for (Tweet t : queue) {
+        super.onSuccess(result);
+        for (Tweet t : result) {
           display.getTwitterFeedContainer().add(new TweetWidget(t));
         }
       }
     });
+  }
+
+  private void showErrorMessage(String message) {
+    display.getErrorMessage().setText(message);
   }
 
   private void toggleTweetButton(boolean isEnabled) {

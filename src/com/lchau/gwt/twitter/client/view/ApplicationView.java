@@ -28,6 +28,10 @@ public class ApplicationView extends Composite implements TweetPresenter.Display
   @UiField
   HasValue<String> message;
   @UiField
+  HasClickHandlers generateTweetsButton;
+  @UiField
+  HasClickHandlers resetButton;
+  @UiField
   HasClickHandlers sendTweet;
   @UiField
   FlowPanel twitterFeed;
@@ -41,7 +45,6 @@ public class ApplicationView extends Composite implements TweetPresenter.Display
         super.setText(text);
       }
     };
-    errorMessage.setVisible(false);
     initWidget(uiBinder.createAndBindUi(this));
   }
 
@@ -61,6 +64,11 @@ public class ApplicationView extends Composite implements TweetPresenter.Display
   }
 
   @Override
+  public HasClickHandlers getResetButton() {
+    return resetButton;
+  }
+
+  @Override
   public HasClickHandlers getSendTweetButton() {
     return sendTweet;
   }
@@ -68,5 +76,10 @@ public class ApplicationView extends Composite implements TweetPresenter.Display
   @Override
   public HasWidgets getTwitterFeedContainer() {
     return twitterFeed;
+  }
+
+  @Override
+  public HasClickHandlers generateRandomTweets() {
+    return generateTweetsButton;
   }
 }
