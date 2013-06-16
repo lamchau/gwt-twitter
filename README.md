@@ -20,13 +20,14 @@ git clone https://github.com/lchau/gwt-twitter.git
 cd gwt-twitter
 ant devmode
 ```
+OR
 
  1. [Download]
  2. Extract to `gwt-twitter` (e.g. `gwt-twitter/build.xml`)
  3. ant
 
 
- From GWT Development Mode: __Launch Default Browser__
+From GWT Development Mode: __Launch Default Browser__
 
 __License__: [Apache v2]
   [Ant]: http://ant.apache.org/
