@@ -4,7 +4,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -22,7 +21,7 @@ public class TwitterServiceImpl extends RemoteServiceServlet implements TwitterS
   private static final int MAX_NUMBER_OF_TWEETS = 20;
 
   // PriorityQueue would not serialize -- had to switch to a LinkedList
-  private LinkedList<Tweet> queue = new LinkedList<Tweet>();
+  private List<Tweet> list = new ArrayList<Tweet>();
   private final Random random = new SecureRandom();
 
   public TwitterServiceImpl() {
@@ -31,7 +30,7 @@ public class TwitterServiceImpl extends RemoteServiceServlet implements TwitterS
 
   @Override
   public void clearTweets() {
-    queue.clear();
+    list.clear();
   }
 
   @Override
@@ -41,7 +40,15 @@ public class TwitterServiceImpl extends RemoteServiceServlet implements TwitterS
 
   @Override
   public List<Tweet> getMostRecentTweets() {
-    return queue;
+    // deep copy of most recent tweets; retaining all tweets
+    final List<Tweet> result = new ArrayList<Tweet>(MAX_NUMBER_OF_TWEETS);
+    final int maxTweets =
+        list.size() >= MAX_NUMBER_OF_TWEETS ? list.size() - MAX_NUMBER_OF_TWEETS : 0;
+    // we only append new tweets, so reverse chronological tweets are simply reversed
+    for (int i = list.size() - 1; i >= maxTweets; i--) {
+      result.add(list.get(i));
+    }
+    return result;
   }
 
   @Override
@@ -60,10 +67,12 @@ public class TwitterServiceImpl extends RemoteServiceServlet implements TwitterS
       throw new IllegalArgumentException(TweetVerifier.INVALID_MESSAGE);
     }
     // TODO: Escape data from the client to avoid cross-site script vulnerabilities.
-    queue.addFirst(tweet);
-    while (queue.size() > MAX_NUMBER_OF_TWEETS) {
-      queue.removeLast();
-    }
+    list.add(tweet);
+    // 20 last tweets without history
+//    list.insertFirst(tweet);
+//    while (list.size() > MAX_NUMBER_OF_TWEETS) {
+//      list.removeLast();
+//    }
   }
 
   /**
@@ -92,6 +101,7 @@ public class TwitterServiceImpl extends RemoteServiceServlet implements TwitterS
       list.add(new Tweet(date, username, message));
     }
     Collections.sort(list, Tweet.TweetComparator.DATE_DESC);
-    queue.addAll(list);
+    list.addAll(list);
+    System.out.println(list.size());
   }
 }
